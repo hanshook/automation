@@ -1,0 +1,21 @@
+- name: install nrpe packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    install_recommends: no
+  with_items:
+    - nagios-nrpe-server
+#    - nagios-nrpe-plugin
+    - monitoring-plugins
+  notify:
+    - restart nrpe
+    
+- name: install xtra plugins
+  copy:
+    src: "{{item}}"
+    dest: "/usr/lib/nagios/plugins/{{item}}"
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - check_mem

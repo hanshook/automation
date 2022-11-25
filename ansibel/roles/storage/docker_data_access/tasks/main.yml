@@ -1,0 +1,40 @@
+- name: Check if mount point for docker data "/docker" exists
+  stat:
+    path: /docker
+  register: docker_mount_point
+- name: Create  mount point for docker data "/docker"
+  file:
+    path: /docker
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+  when: docker_mount_point.stat.exists == false
+- name: Mount docker gluster volume at "/docker" permanently 
+  ansible.posix.mount:
+    src: "{{  deployment_prefix+'-'+groups['storage'][0] }}:/docker"
+    fstype: glusterfs
+    opts: defaults,_netdev
+    path: /docker
+    state: mounted
+- name: Make sure the "/docker" mount point has the correct access rights
+  file:
+    path: /docker
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+- name: Make sure the "/docker" mount point has the correct subdirectories for deployment 
+  file:
+    path: "/docker/{{item}}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - etc
+    - usr
+    - var
+    - var/volumes
+    - var/backup
+

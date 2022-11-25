@@ -1,0 +1,46 @@
+---
+# ansible-playbook initialize_physical.yml --extra-vars "selected_hosts=['<inventory hostname>']"
+#
+- name: Initialize servers
+  hosts: "{{ selected_hosts | default('physical_servers') }}"
+  become: true
+  roles:
+    - role: updated_server
+      tags:
+        - updated_server
+    
+- name: Install auotupdates and nrpe client
+  hosts: "{{ selected_hosts | default('physical_servers') }}"  
+  become: true
+  roles:
+    - role: autoupdate
+      tags:
+        - autoupdate
+        - nrpeclient
+      
+- name: Install basic sw
+  hosts: "{{ selected_hosts | default('physical_servers') }}"
+  become: true
+  roles:
+    - role: basic_sw
+      tags:
+        - basic_sw
+      
+- name: Install utility scripts
+  hosts: "{{ selected_hosts | default('physical_servers') }}"
+  become: true
+  roles:
+    - role: utility_scripts
+      tags:
+        - utility_scripts
+
+- name: Install basic sw on physical servers
+  hosts: "{{ selected_hosts | default('physical_servers') }}"
+  become: true
+  tasks:
+  - name: Install basic physical server packages
+    apt:
+      pkg:
+      - smartmontools
+
+  

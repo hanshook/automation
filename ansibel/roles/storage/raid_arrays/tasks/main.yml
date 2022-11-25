@@ -1,0 +1,22 @@
+---
+- name: Checking for any existing raid arrays 
+  shell: "cat /proc/mdstat | grep {{ item.name }}"
+  register: "array_check"
+  changed_when: false
+  failed_when: false
+  with_items: '{{ raid_arrays }}'
+  check_mode: no
+
+- name: Print raid array status info
+  debug: var=array_check.results[item.0].rc
+  with_indexed_items: '{{ raid_arrays }}'
+
+- name: Create raid array(s) 
+  shell: "yes | mdadm --create /dev/md/{{ item.1.name }} --level={{ item.1.level }} --raid-devices={{ item.1.devices|count }} {{ item.1.devices| join (' ') }}"
+  register: "array_created"
+  with_indexed_items: '{{ raid_arrays }}'
+  when: >
+        item.1.state|lower == "present" and
+        array_check.results[item.0].rc != 0
+
+#  shell: "echo \"mdadm --create /dev/md/{{ item.1.name }} --level={{ item.1.level }} --raid-devices={{ item.1.devices|count }} {{ item.1.devices| join (' ') }}\" >> create_cmd"  

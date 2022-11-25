@@ -1,0 +1,16 @@
+---
+- name: Partions disks on physical servers
+  hosts: "{{ selected_hosts | default('physical_servers') }}"
+  become: true
+  roles:
+    - role: roles/storage/disk_partitions
+      tags:
+        - disk_partitions
+        
+- name: Create raid arrais on physical servers
+  hosts: "{{ selected_hosts | default('physical_servers') }}"
+  become: true
+  roles:
+    - role: roles/storage/raid_arrays
+      tags:
+        - raid_arrays

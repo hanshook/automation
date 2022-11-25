@@ -1,0 +1,71 @@
+- name: Look for old server monitoring configs
+  find:
+    paths: /usr/local/nagios/etc/servers
+    patterns: "*.cfg"
+  register: old_server_monitoring_configs
+
+- name: Remove old server monitoring configs
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ old_server_monitoring_configs.files }}"
+
+- name: Generate new server monitoring configs
+  vars:
+    common_ip_part: "{{ private_subnet | regex_replace('0\\/.+$', '') }}"
+  template:
+    src: server.cfg
+    dest: "/usr/local/nagios/etc/servers/{{ item }}.cfg"
+    owner: nagios
+    group: nagios
+    mode: 0664
+  with_items: "{{ (groups.gateways + groups.servers) | difference(groups.nagios_servers) }}"
+  notify:
+    - restart nagios
+    - reload apache
+
+- name: Setup server monitoring groups
+  template:
+    src: "{{ item }}"
+    dest: "/usr/local/nagios/etc/servers/{{ item }}"
+    owner: nagios
+    group: nagios
+    mode: 0664
+  with_items:
+    - host_groups.cfg
+  notify:
+    - restart nagios
+    - reload apache
+
+
+- name: Setup localhost monitoring config
+  template:
+    src: "{{ item }}"
+    dest: "/usr/local/nagios/etc/objects/{{ item }}"
+    owner: nagios
+    group: nagios
+    mode: 0664
+  with_items:
+    - localhost.cfg
+  notify:
+    - restart nagios
+    - reload apache
+
+- name: copy nagios slack notify scripts
+  copy:
+    src: "{{ item }}"
+    dest: /usr/local/nagios/bin/{{ item }}
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - slack_nagios.sh
+    - slack_nagios.pl
+  notify:
+    - restart nagios    
+
+# TODO: Setup users and notification by email and Slack
+
+# TODO: Swarm monitoring
+# https://github.com/timdaman/check_docker
+# https://exchange.nagios.org/directory/Plugins/Software/Check_docker_swarm/details

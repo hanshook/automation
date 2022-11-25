@@ -1,0 +1,9 @@
+- name: Install basic packages
+  apt:
+    pkg:
+    - net-tools
+    - ca-certificates
+    - software-properties-common
+    - emacs-nox
+    - elpa-yaml-mode
+    - tree

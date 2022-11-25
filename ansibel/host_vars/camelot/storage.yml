@@ -1,0 +1,60 @@
+disks:
+- device: '/dev/sdh'
+  id: "Samsung  SSD 870 2B6Q"
+  serial: S6PPNX0T907630X
+  size: 2TB
+  partitions:
+    - number: 1
+      part_start: 0%
+      part_end: 50%
+    - number: 2
+      part_start: 50%
+      part_end: 100%
+- device: '/dev/sdg'
+  id: "WDC WD40EFRX-68W 0A82"
+  serial: WD-WCC4E1007585
+  size: 4TB
+  partitions:
+    - number: 1
+      part_start: 0%
+      part_end: 100%
+- device: '/dev/sde'
+  id: "WDC WD40EFRX-68W 0A82"
+  serial: WD-WCC4E6VZ3YT9
+  size: 4TB
+  partitions:
+    - number: 1
+      part_start: 0%
+      part_end: 100%
+- device: '/dev/sdd'
+  id: "WDC WD40EFRX-68W 0A82"
+  serial: WD-WCC4E5LH56H1
+  size: 4TB
+  partitions: [ ]
+- device: '/dev/sdh'
+  id: "WDC WD40EFRX-68W 0A82"
+  serial: WD-WCC4E5PX14JR
+  size: 4TB
+  partitions: [ ]
+- device: '/dev/sdc'
+  id: "WDC WD40EFRX-68W 0A82"
+  serial: WD-WCC4E6VZ3TAP
+  size: 4TB
+  partitions: [ ]
+
+  
+
+raid_arrays:
+- name: 'large'
+  level: 1
+  devices:
+    - '/dev/sde1'
+    - '/dev/sdg1'
+  state: "present"
+
+- name: 'fast_xtra'  
+  level: 1
+  devices:
+    - '/dev/sda5'
+    - '/dev/sdb5'
+  state: "present"

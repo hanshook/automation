@@ -1,0 +1,15 @@
+---
+# ansible-playbook take_control.yml --extra-vars "selected_hosts=['<inventory hostname>']"
+#
+- name: Setup admin users on physical servers
+  hosts: "{{ selected_hosts | default('physical_servers') }}"
+  remote_user: notroot
+  become: true
+  vars:
+    ansible_become_pass: "{{ notroot_become_pass }}"  
+  roles:
+    - role: admins
+      tags:
+        - admins
+
+  

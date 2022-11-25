@@ -1,0 +1,30 @@
+---
+
+# TODO: use lshw -class disk to get serial -> logical name of disks 
+
+- name: Disks with partitions
+  debug:
+    msg: "device: {{ item.0.device }} number: {{ item.1.number }} part_start: {{ item.1.part_start }} part_end: {{ item.1.part_end }}" 
+  loop: "{{ disks | subelements('partitions') }}"
+  loop_control:
+    label: "Disk: {{ item.0.id }} size: {{ item.0.size }} device: {{ item.0.device }} partition nbr: {{ item.1.number }} start: {{ item.1.part_start }} end: {{ item.1.part_end }}"
+- name: Disks without partitions
+  debug:
+    msg: "device: {{ item.device }} has no partitons" 
+  loop: "{{ disks }}"
+  loop_control:
+    label: "Disk: {{ item.id }} size: {{ item.size }}"
+  when: not item.partitions
+
+- name: Partition device
+  parted:
+    device: "{{ item.0.device }}"
+    label: gpt
+    number: "{{ item.1.number }}"
+    part_start: "{{ item.1.part_start }}"
+    part_end: "{{ item.1.part_end }}"
+    state: present
+  loop: "{{ disks | subelements('partitions') }}"
+  loop_control:
+    label: "Device: {{ item.0.device }} partition nbr: {{ item.1.number }} start: {{ item.1.part_start }} end: {{ item.1.part_end }}"
+    
